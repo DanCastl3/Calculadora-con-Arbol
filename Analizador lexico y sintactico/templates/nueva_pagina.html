@@ -88,7 +88,7 @@
                         }
                         operators.push(symbol);
                     } else if (token.tipo === 'Paréntesis Abre') {
-                        operators.push('('); // Agregar el paréntesis abierto
+                        operators.push('('); 
                     } else if (token.tipo === 'Paréntesis Cierra') {
                         while (operators.length && operators[operators.length - 1] !== '(') {
                             const operator = operators.pop();
@@ -97,7 +97,7 @@
                             const operatorNode = { name: operator, children: [left, right] };
                             output.push(operatorNode);
                         }
-                        operators.pop(); // Sacar el paréntesis abierto
+                        operators.pop(); 
                     }
                 }
 
