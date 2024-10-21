@@ -20,27 +20,22 @@ t_DIVISION = r'/'
 t_PARENTESIS_IZQUIERDO = r'\('
 t_PARENTESIS_DERECHO = r'\)'
 
-# Definimos cómo identificar los números enteros
 def t_NUMERO_ENTERO(t):
-    r'\d+'  # Un número entero es una o más cifras
-    t.value = int(t.value)  # Convertir el valor a int
+    r'\d+'  
+    t.value = int(t.value)  
     return t
 
-# Definimos cómo identificar los números decimales
 def t_NUMERO_DECIMAL(t):
-    r'\d+\.\d+'  # Un número decimal es dígitos seguidos de un punto y más dígitos
-    t.value = float(t.value)  # Convertir el valor a float
+    r'\d+\.\d+'  #
+    t.value = float(t.value)  
     return t
 
-# Ignorar espacios en blanco
 t_ignore = ' \t'
 
-# Manejo de errores léxicos
 def t_error(t):
     print(f"Carácter ilegal {t.value[0]}")
     t.lexer.skip(1)
 
-# Construimos el lexer
 lexer = lex.lex()
 
 # Definimos la gramática para el parser
@@ -87,13 +82,12 @@ parser = yacc.yacc()
 def index():
     return render_template('index.html')
 
-# Ruta para procesar la expresión
+# Ruta para  la expresión
 @app.route('/calcular', methods=['POST'])
 def calcular():
     data = request.json
-    expresion = data['expresion'].replace(' ', '')  # Eliminar espacios en blanco para procesar correctamente
+    expresion = data['expresion'].replace(' ', '')  
 
-    # Limpiamos los tokens antes de procesar
     lexer.input(expresion)
     tokens = []
     
@@ -113,22 +107,18 @@ def calcular():
         }
         tokens.append({"valor": tok.value, "tipo": token_tipo.get(tok.type, tok.type)})
 
-    # Evaluar la expresión y obtener el resultado
     try:
         resultado = parser.parse(expresion)
 
-        # Almacenar tokens en la sesión
         session['tokens'] = tokens
         return jsonify({"resultado": resultado, "tokens": tokens})
     except Exception as e:
         return jsonify({"error": str(e), "tokens": tokens})
 
-# Nueva ruta para redirigir a la nueva página en blanco
 @app.route('/nueva_pagina')
 def nueva_pagina():
     tokens = session.get('tokens', [])
     return render_template('nueva_pagina.html', tokens=tokens)
 
-# Ejecutar la aplicación
 if __name__ == '__main__':
     app.run(debug=True)
