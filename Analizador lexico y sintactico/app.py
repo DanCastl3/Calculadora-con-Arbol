@@ -20,30 +20,36 @@ t_DIVISION = r'/'
 t_PARENTESIS_IZQUIERDO = r'\('
 t_PARENTESIS_DERECHO = r'\)'
 
-def t_NUMERO_ENTERO(t):
-    r'\d+'  
-    t.value = int(t.value)  
-    return t
-
+# Definir primero el token de número decimal
 def t_NUMERO_DECIMAL(t):
-    r'\d+\.\d+'  #
-    t.value = float(t.value)  
+    r'\d+\.\d+'  # Coincide con números como 123.456
+    t.value = float(t.value)  # Convertir el valor a float
     return t
 
+# Luego definir el token de número entero
+def t_NUMERO_ENTERO(t):
+    r'\d+'  # Coincide con números enteros como 123
+    t.value = int(t.value)  # Convertir el valor a int
+    return t
+
+# Ignorar espacios y tabs
 t_ignore = ' \t'
 
+# Manejar errores
 def t_error(t):
     print(f"Carácter ilegal {t.value[0]}")
     t.lexer.skip(1)
 
+# Construir el lexer
 lexer = lex.lex()
 
-# Definimos la gramática para el parser
+
 def p_expresion_binop(p):
     '''expresion : expresion SUMA expresion
                  | expresion RESTA expresion
                  | expresion MULTIPLICACION expresion
                  | expresion DIVISION expresion'''
+    
     if p[2] == '+':
         p[0] = p[1] + p[3]
     elif p[2] == '-':
@@ -53,7 +59,11 @@ def p_expresion_binop(p):
     elif p[2] == '/':
         if p[3] == 0:
             raise ZeroDivisionError("División por cero.")
-        p[0] = p[1] / p[3]
+        p[0] = p[1] / p[3]  # En la división siempre se devuelve un decimal
+
+    # Verificar si algún número es decimal y asegurarse de devolver float en esos casos
+    if isinstance(p[1], float) or isinstance(p[3], float):
+        p[0] = float(p[0])  # Convertir el resultado a decimal si algún operando es decimal
 
 def p_expresion_par(p):
     'expresion : PARENTESIS_IZQUIERDO expresion PARENTESIS_DERECHO'
