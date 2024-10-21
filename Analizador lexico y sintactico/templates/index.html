@@ -1,0 +1,130 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Título eliminado -->
+        <div class="calc-table">
+            <div class="calculator">
+                <input type="text" id="resultado" placeholder="0" readonly>
+
+                <div class="button-container">
+                    <button onclick="agregarOperacion('(')">(</button>
+                    <button onclick="agregarOperacion(')')">)</button>
+                    <button onclick="limpiar()">C</button>
+                    <button onclick="agregarOperacion('/')">/</button>
+                    
+                    <button onclick="agregarNumero('7')">7</button>
+                    <button onclick="agregarNumero('8')">8</button>
+                    <button onclick="agregarNumero('9')">9</button>
+                    <button onclick="agregarOperacion('*')">*</button>
+                    
+                    <button onclick="agregarNumero('4')">4</button>
+                    <button onclick="agregarNumero('5')">5</button>
+                    <button onclick="agregarNumero('6')">6</button>
+                    <button onclick="agregarOperacion('-')">-</button>
+                    
+                    <button onclick="agregarNumero('1')">1</button>
+                    <button onclick="agregarNumero('2')">2</button>
+                    <button onclick="agregarNumero('3')">3</button>
+                    <button onclick="agregarOperacion('+')">+</button>
+                    
+                    <button onclick="agregarNumero('0')">0</button>
+                    <button onclick="agregarNumero('.')">.</button>
+                    <button onclick="calcularResultado()">=</button>
+                    
+                    <!-- Cambiado el nombre del botón a "Tree" -->
+                    <button onclick="irANuevaPagina()">Tree</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="token-table">
+            <h2>Tokens</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Token</th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+                <tbody id="tokenList"></tbody>
+            </table>
+        </div>
+
+        <h2 id="error" class="error"></h2>
+    </div>
+
+    <script>
+        function agregarNumero(num) {
+    const resultado = document.getElementById("resultado");
+    if (num === '.' && resultado.value.includes('.')) return; // Evitar múltiples puntos
+    if (resultado.value === "0" || resultado.value === "") {
+        resultado.value = num;
+    } else {
+        resultado.value += num;
+    }
+}
+
+        function agregarOperacion(operacion) {
+            const resultado = document.getElementById("resultado");
+            if (resultado.value === "" && operacion === '(') {
+                resultado.value = operacion;
+            } else if (resultado.value !== "") {
+                resultado.value += ` ${operacion} `;
+            }
+        }
+    
+        function calcularResultado() {
+            const expresion = document.getElementById("resultado").value;
+            fetch("/calcular", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ expresion: expresion }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                const tokenList = document.getElementById("tokenList");
+                tokenList.innerHTML = "";
+                data.tokens.forEach(token => {
+                    const tr = document.createElement("tr");
+                    const tdToken = document.createElement("td");
+                    const tdTipo = document.createElement("td");
+                    tdToken.innerText = token.valor;
+                    tdTipo.innerText = token.tipo;
+                    tr.appendChild(tdToken);
+                    tr.appendChild(tdTipo);
+                    tokenList.appendChild(tr);
+                });
+                if (data.resultado !== undefined) {
+                    document.getElementById("resultado").value = data.resultado;
+                } else {
+                    document.getElementById("error").innerText = data.error;
+                }
+            })
+            .catch(err => {
+                document.getElementById("error").innerText = "Error al analizar la expresión.";
+            });
+        }
+    
+        function limpiar() {
+            document.getElementById("resultado").value = "";
+            document.getElementById("tokenList").innerHTML = ''; 
+            document.getElementById("error").innerText = '';
+        }
+
+        // Función para redirigir a otra página
+        function irANuevaPagina() {
+            window.location.href = "/nueva_pagina";
+        }
+    </script>
+    
+</body>
+</html>

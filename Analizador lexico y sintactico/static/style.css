@@ -1,0 +1,133 @@
+/* Estilos generales para el cuerpo */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Contenedor principal */
+.container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+    padding: 10px; /* Reducir el padding */
+    width: 300px; /* Ajustar el ancho del contenedor a 300px */
+    text-align: center;
+}
+
+/* Título de la calculadora */
+h1 {
+    font-size: 20px; /* Reducir el tamaño de la fuente */
+    color: #333;
+    margin-bottom: 15px; /* Reducir el margen inferior */
+}
+
+/* Caja de texto para el resultado */
+input[type="text"] {
+    width: 100%;
+    padding: 8px; /* Reducir el padding */
+    font-size: 18px; /* Reducir el tamaño de la fuente */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-bottom: 15px; /* Reducir el margen inferior */
+    text-align: right;
+}
+
+/* Contenedor de botones */
+.button-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px; /* Reducir el espacio entre botones */
+}
+
+/* Botones */
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px; /* Reducir el padding de los botones */
+    font-size: 14px; /* Reducir el tamaño de la fuente */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Tabla de tokens */
+.token-table {
+    margin-top: 15px; /* Reducir el margen superior */
+    text-align: left;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 6px; /* Reducir el padding de las celdas */
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+}
+
+h2.error {
+    margin-top: 15px; /* Reducir el margen superior */
+    font-size: 16px; /* Reducir el tamaño de la fuente */
+    color: #ff4c4c;
+}
+
+/* Diseño para dispositivos móviles */
+@media (max-width: 600px) {
+    .container {
+        width: 90%;
+        padding: 10px; /* Ajustar el padding para móviles */
+    }
+}
+
+/* Estilos para el contenedor de la calculadora y la tabla */
+.calc-table {
+    display: flex;
+    justify-content: space-between;
+}
+
+.calculator {
+    flex: 1; /* Ocupa el 50% del espacio */
+    margin-right: 10px; /* Espacio entre la calculadora y la tabla */
+}
+
+.token-table {
+    flex: 1; /* Ocupa el 50% del espacio */
+}
+
+/* Estilos para el árbol sintáctico */
+.node rect {
+    stroke: #ff6347; /* Color del borde */
+    stroke-width: 3px; /* Grosor del borde */
+    fill: #ffa07a; /* Color de fondo */
+}
+
+.node text {
+    font: 12px "Arial", sans-serif; /* Reducir el tamaño del texto */
+    fill: #333; /* Color del texto */
+    text-anchor: middle; /* Alineación centrada */
+}
+
+.link {
+    fill: none;
+    stroke: #4682b4; /* Color de los enlaces */
+    stroke-width: 2px; /* Grosor de los enlaces */
+    opacity: 0.8; /* Transparencia de los enlaces */
+}

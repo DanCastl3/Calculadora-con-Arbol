@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Árbol de Expresiones</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #007bff; /* Fondo azul */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        svg {
+            width: 800px;  /* Ancho del SVG */
+            height: 600px; /* Alto del SVG */
+        }
+
+        .node circle {
+            stroke: #3182bd;
+            stroke-width: 3px;
+            fill: white; /* Círculos blancos */
+            r: 25; /* Tamaño de los círculos */
+        }
+
+        .node text {
+            font: 16px sans-serif; /* Tamaño de la fuente */
+            text-anchor: middle; /* Centrar el texto */
+            fill: black; /* Color del texto negro */
+        }
+
+        .link {
+            fill: none;
+            stroke: #ccc; /* Color de las líneas */
+            stroke-width: 2px; /* Grosor de las líneas */
+        }
+    </style>
+</head>
+<body>
+    <svg></svg>
+    <script>
+        const tokens = {{ tokens | tojson | safe }};
+        console.log("Tokens desde el backend:", tokens);
+
+        if (tokens.length === 0) {
+            d3.select("svg").append("text")
+                .attr("x", 400)
+                .attr("y", 300)
+                .attr("text-anchor", "middle")
+                .text("No hay tokens para generar el árbol.");
+        } else {
+            function createExpressionTree(tokens) {
+                const output = [];
+                const operators = [];
+                const precedence = {
+                    '+': 1,
+                    '-': 1,
+                    '*': 2,
+                    '/': 2,
+                };
+
+                for (const token of tokens) {
+                    if (token.tipo.startsWith("Número")) {
+                        output.push({ name: token.valor, children: [] });
+                    } else if (['Suma', 'Resta', 'Multiplicación', 'División'].includes(token.tipo)) {
+                        const symbol = {
+                            'Suma': '+',
+                            'Resta': '-',
+                            'Multiplicación': '*',
+                            'División': '/',
+                        }[token.tipo];
+
+                        while (
+                            operators.length &&
+                            precedence[operators[operators.length - 1]] >= precedence[symbol]
+                        ) {
+                            const operator = operators.pop();
+                            const right = output.pop();
+                            const left = output.pop();
+                            const operatorNode = { name: operator, children: [left, right] };
+                            output.push(operatorNode);
+                        }
+                        operators.push(symbol);
+                    } else if (token.tipo === 'Paréntesis Abre') {
+                        operators.push('('); // Agregar el paréntesis abierto
+                    } else if (token.tipo === 'Paréntesis Cierra') {
+                        while (operators.length && operators[operators.length - 1] !== '(') {
+                            const operator = operators.pop();
+                            const right = output.pop();
+                            const left = output.pop();
+                            const operatorNode = { name: operator, children: [left, right] };
+                            output.push(operatorNode);
+                        }
+                        operators.pop(); // Sacar el paréntesis abierto
+                    }
+                }
+
+                while (operators.length) {
+                    const operator = operators.pop();
+                    const right = output.pop();
+                    const left = output.pop();
+                    const operatorNode = { name: operator, children: [left, right] };
+                    output.push(operatorNode);
+                }
+
+                return output.length ? output[0] : null;
+            }
+
+            const treeData = createExpressionTree(tokens);
+            if (treeData) {
+                const width = 800, height = 600;
+
+                const treeLayout = d3.tree().size([height, width - 160]);
+                const root = d3.hierarchy(treeData);
+                treeLayout(root);
+
+                const svg = d3.select("svg")
+                    .attr("viewBox", [-80, 0, width, height]);
+
+                const g = svg.append("g").attr("transform", "translate(40,0)");
+
+                const link = g.selectAll(".link")
+                    .data(root.links())
+                    .enter().append("path")
+                    .attr("class", "link")
+                    .attr("d", d3.linkVertical()
+                        .x(d => d.y)
+                        .y(d => d.x));
+
+                const node = g.selectAll(".node")
+                    .data(root.descendants())
+                    .enter().append("g")
+                    .attr("class", "node")
+                    .attr("transform", d => `translate(${d.y},${d.x})`);
+
+                node.append("circle")
+                    .attr("r", 25);
+
+                node.append("text")
+                    .attr("dy", 5)
+                    .text(d => d.data.name)
+                    .attr("text-anchor", "middle");
+            } else {
+                d3.select("svg").append("text")
+                    .attr("x", 400)
+                    .attr("y", 300)
+                    .attr("text-anchor", "middle")
+                    .text("No se pudo generar el árbol de expresiones.");
+            }
+        }
+    </script>
+</body>
+</html>
